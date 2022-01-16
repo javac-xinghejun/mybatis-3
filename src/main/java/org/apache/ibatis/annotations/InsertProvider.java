@@ -1,5 +1,5 @@
-/**
- *    Copyright 2009-2019 the original author or authors.
+/*
+ *    Copyright 2009-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,16 +17,38 @@ package org.apache.ibatis.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * The annotation that specify a method that provide an SQL for inserting record(s).
+ *
+ * <p>
+ * <b>How to use:</b>
+ *
+ * <pre>
+ * public interface UserMapper {
+ *
+ *   &#064;InsertProvider(type = SqlProvider.class, method = "insert")
+ *   void insert(User user);
+ *
+ *   public static class SqlProvider {
+ *     public static String insert() {
+ *       return "INSERT INTO users (id, name) VALUES(#{id}, #{name})";
+ *     }
+ *   }
+ *
+ * }
+ * </pre>
+ *
  * @author Clinton Begin
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
+@Repeatable(InsertProvider.List.class)
 public @interface InsertProvider {
 
   /**
@@ -57,7 +79,8 @@ public @interface InsertProvider {
    * If this attribute omit, the MyBatis will call a method that decide by following rules.
    * <ul>
    *   <li>
-   *     If class that specified the {@link #type()} attribute implements the {@link org.apache.ibatis.builder.annotation.ProviderMethodResolver},
+   *     If class that specified the {@link #type()} attribute implements the
+   *     {@link org.apache.ibatis.builder.annotation.ProviderMethodResolver},
    *     the MyBatis use a method that returned by it
    *   </li>
    *   <li>
@@ -69,5 +92,23 @@ public @interface InsertProvider {
    * @return a method name of method for providing an SQL
    */
   String method() default "";
+
+  /**
+   * @return A database id that correspond this provider
+   * @since 3.5.5
+   */
+  String databaseId() default "";
+
+  /**
+   * The container annotation for {@link InsertProvider}.
+   * @author Kazuki Shimizu
+   * @since 3.5.5
+   */
+  @Documented
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.METHOD)
+  @interface List {
+    InsertProvider[] value();
+  }
 
 }

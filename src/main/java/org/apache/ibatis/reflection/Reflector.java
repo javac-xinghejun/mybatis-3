@@ -1,5 +1,5 @@
-/**
- *    Copyright 2009-2019 the original author or authors.
+/*
+ *    Copyright 2009-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import org.apache.ibatis.reflection.invoker.Invoker;
 import org.apache.ibatis.reflection.invoker.MethodInvoker;
 import org.apache.ibatis.reflection.invoker.SetFieldInvoker;
 import org.apache.ibatis.reflection.property.PropertyNamer;
+import org.apache.ibatis.util.MapUtil;
 
 /**
  * This class represents a cached set of class definition information that
@@ -63,8 +64,9 @@ public class Reflector {
   public Reflector(Class<?> clazz) {
     type = clazz;
     addDefaultConstructor(clazz);
-    addGetMethods(clazz);
-    addSetMethods(clazz);
+    Method[] classMethods = getClassMethods(clazz);
+    addGetMethods(classMethods);
+    addSetMethods(classMethods);
     addFields(clazz);
     readablePropertyNames = getMethods.keySet().toArray(new String[0]);
     writablePropertyNames = setMethods.keySet().toArray(new String[0]);
@@ -82,9 +84,8 @@ public class Reflector {
       .findAny().ifPresent(constructor -> this.defaultConstructor = constructor);
   }
 
-  private void addGetMethods(Class<?> clazz) {
+  private void addGetMethods(Method[] methods) {
     Map<String, List<Method>> conflictingGetters = new HashMap<>();
-    Method[] methods = getClassMethods(clazz);
     Arrays.stream(methods).filter(m -> m.getParameterTypes().length == 0 && PropertyNamer.isGetter(m.getName()))
       .forEach(m -> addMethodConflict(conflictingGetters, PropertyNamer.methodToProperty(m.getName()), m));
     resolveGetterConflicts(conflictingGetters);
@@ -133,9 +134,8 @@ public class Reflector {
     getTypes.put(name, typeToClass(returnType));
   }
 
-  private void addSetMethods(Class<?> clazz) {
+  private void addSetMethods(Method[] methods) {
     Map<String, List<Method>> conflictingSetters = new HashMap<>();
-    Method[] methods = getClassMethods(clazz);
     Arrays.stream(methods).filter(m -> m.getParameterTypes().length == 1 && PropertyNamer.isSetter(m.getName()))
       .forEach(m -> addMethodConflict(conflictingSetters, PropertyNamer.methodToProperty(m.getName()), m));
     resolveSetterConflicts(conflictingSetters);
@@ -143,14 +143,15 @@ public class Reflector {
 
   private void addMethodConflict(Map<String, List<Method>> conflictingMethods, String name, Method method) {
     if (isValidPropertyName(name)) {
-      List<Method> list = conflictingMethods.computeIfAbsent(name, k -> new ArrayList<>());
+      List<Method> list = MapUtil.computeIfAbsent(conflictingMethods, name, k -> new ArrayList<>());
       list.add(method);
     }
   }
 
   private void resolveSetterConflicts(Map<String, List<Method>> conflictingSetters) {
-    for (String propName : conflictingSetters.keySet()) {
-      List<Method> setters = conflictingSetters.get(propName);
+    for (Entry<String, List<Method>> entry : conflictingSetters.entrySet()) {
+      String propName = entry.getKey();
+      List<Method> setters = entry.getValue();
       Class<?> getterType = getTypes.get(propName);
       boolean isGetterAmbiguous = getMethods.get(propName) instanceof AmbiguousMethodInvoker;
       boolean isSetterAmbiguous = false;
@@ -428,7 +429,7 @@ public class Reflector {
    * @return True if the object has a writable property by the name
    */
   public boolean hasSetter(String propertyName) {
-    return setMethods.keySet().contains(propertyName);
+    return setMethods.containsKey(propertyName);
   }
 
   /**
@@ -438,7 +439,7 @@ public class Reflector {
    * @return True if the object has a readable property by the name
    */
   public boolean hasGetter(String propertyName) {
-    return getMethods.keySet().contains(propertyName);
+    return getMethods.containsKey(propertyName);
   }
 
   public String findPropertyName(String name) {

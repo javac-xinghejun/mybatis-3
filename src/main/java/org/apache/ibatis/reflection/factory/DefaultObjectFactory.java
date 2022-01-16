@@ -1,5 +1,5 @@
-/**
- *    Copyright 2009-2019 the original author or authors.
+/*
+ *    Copyright 2009-2021 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -69,13 +69,13 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
           }
         }
       }
-      constructor = type.getDeclaredConstructor(constructorArgTypes.toArray(new Class[constructorArgTypes.size()]));
+      constructor = type.getDeclaredConstructor(constructorArgTypes.toArray(new Class[0]));
       try {
-        return constructor.newInstance(constructorArgs.toArray(new Object[constructorArgs.size()]));
+        return constructor.newInstance(constructorArgs.toArray(new Object[0]));
       } catch (IllegalAccessException e) {
         if (Reflector.canControlMemberAccessible()) {
           constructor.setAccessible(true);
-          return constructor.newInstance(constructorArgs.toArray(new Object[constructorArgs.size()]));
+          return constructor.newInstance(constructorArgs.toArray(new Object[0]));
         } else {
           throw e;
         }
