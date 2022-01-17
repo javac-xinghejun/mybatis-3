@@ -16,6 +16,7 @@
 package org.apache.ibatis.scripting.xmltags;
 
 /**
+ * Sql节点，有多个实现，包括不同节点的实现，例如trim/where/if等。还有动态的（dynamic）、混合的（mixed）
  * @author Clinton Begin
  */
 public interface SqlNode {

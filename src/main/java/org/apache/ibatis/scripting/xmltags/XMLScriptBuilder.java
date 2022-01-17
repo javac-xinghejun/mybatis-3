@@ -64,6 +64,7 @@ public class XMLScriptBuilder extends BaseBuilder {
   }
 
   public SqlSource parseScriptNode() {
+    // SqlNote有多个实现，使用的是混合的（Mixed）具体的sql会使用GenericTokenParser替换里面的#{}或者${}
     MixedSqlNode rootSqlNode = parseDynamicTags(context);
     SqlSource sqlSource = null;
     if (isDynamic) {
