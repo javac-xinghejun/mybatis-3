@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2021 the original author or authors.
+ *    Copyright 2009-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -261,14 +261,14 @@ public class MapperBuilderAssistant extends BaseBuilder {
       String keyColumn,
       String databaseId,
       LanguageDriver lang,
-      String resultSets) {
+      String resultSets,
+      boolean dirtySelect) {
 
     if (unresolvedCacheRef) {
       throw new IncompleteElementException("Cache-ref not yet resolved");
     }
 
     id = applyCurrentNamespace(id, false);
-    boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
 
     MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlSource, sqlCommandType)
         .resource(resource)
@@ -284,9 +284,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .resultSets(resultSets)
         .resultMaps(getStatementResultMaps(resultMap, resultType, id))
         .resultSetType(resultSetType)
-        .flushCacheRequired(valueOrDefault(flushCache, !isSelect))
-        .useCache(valueOrDefault(useCache, isSelect))
-        .cache(currentCache);
+        .flushCacheRequired(flushCache)
+        .useCache(useCache)
+        .cache(currentCache)
+        .dirtySelect(dirtySelect);
 
     ParameterMap statementParameterMap = getStatementParameterMap(parameterMap, parameterType, id);
     if (statementParameterMap != null) {
@@ -345,12 +346,24 @@ public class MapperBuilderAssistant extends BaseBuilder {
       SqlCommandType sqlCommandType, Integer fetchSize, Integer timeout, String parameterMap, Class<?> parameterType,
       String resultMap, Class<?> resultType, ResultSetType resultSetType, boolean flushCache, boolean useCache,
       boolean resultOrdered, KeyGenerator keyGenerator, String keyProperty, String keyColumn, String databaseId,
-      LanguageDriver lang) {
+      LanguageDriver lang, String resultSets) {
     return addMappedStatement(
       id, sqlSource, statementType, sqlCommandType, fetchSize, timeout,
       parameterMap, parameterType, resultMap, resultType, resultSetType,
       flushCache, useCache, resultOrdered, keyGenerator, keyProperty,
-      keyColumn, databaseId, lang, null);
+      keyColumn, databaseId, lang, null, false);
+  }
+
+  public MappedStatement addMappedStatement(String id, SqlSource sqlSource, StatementType statementType,
+      SqlCommandType sqlCommandType, Integer fetchSize, Integer timeout, String parameterMap, Class<?> parameterType,
+      String resultMap, Class<?> resultType, ResultSetType resultSetType, boolean flushCache, boolean useCache,
+      boolean resultOrdered, KeyGenerator keyGenerator, String keyProperty, String keyColumn, String databaseId,
+      LanguageDriver lang) {
+    return addMappedStatement(
+        id, sqlSource, statementType, sqlCommandType, fetchSize, timeout,
+        parameterMap, parameterType, resultMap, resultType, resultSetType,
+        flushCache, useCache, resultOrdered, keyGenerator, keyProperty,
+        keyColumn, databaseId, lang, null);
   }
 
   private <T> T valueOrDefault(T value, T defaultValue) {

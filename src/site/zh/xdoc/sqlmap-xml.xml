@@ -7,7 +7,7 @@
        you may not use this file except in compliance with the License.
        You may obtain a copy of the License at
 
-          http://www.apache.org/licenses/LICENSE-2.0
+          https://www.apache.org/licenses/LICENSE-2.0
 
        Unless required by applicable law or agreed to in writing, software
        distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
 
 -->
 <document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+      xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 https://maven.apache.org/xsd/xdoc-2.0.xsd">
 
   <properties>
     <title>MyBatis 3 | XML 映射器</title>
@@ -231,6 +231,11 @@ ps.setInt(1,id);]]></source>
               <td><code>resultSets</code></td>
               <td>
                 这个设置仅适用于多结果集的情况。它将列出语句执行后返回的结果集并赋予每个结果集一个名称，多个名称之间以逗号分隔。
+              </td>
+            </tr>
+            <tr>
+              <td><code>affectData</code></td>
+              <td>Set this to true when writing a INSERT, UPDATE or DELETE statement that returns data so that the transaction is controlled properly. Also see <a href="./java-api.html#transaction-control-methods">Transaction Control Method</a>. Default: <code>false</code> (since 3.5.12)
               </td>
             </tr>
           </tbody>
@@ -461,6 +466,18 @@ ps.setInt(1,id);]]></source>
             </tr>
           </tbody>
         </table>
+
+        <p>
+          As an irregular case, some databases allow INSERT, UPDATE or DELETE statement to return result set (e.g. <code>RETURNING</code> clause of PostgreSQL and MariaDB or <code>OUTPUT</code> clause of MS SQL Server). This type of statement must be written as <code><![CDATA[<select>]]></code> to map the returned data.
+        </p>
+
+        <source><![CDATA[<select id="insertAndGetAuthor" resultType="domain.blog.Author"
+      affectData="true" flushCache="true">
+  insert into Author (username, password, email, bio)
+  values (#{username}, #{password}, #{email}, #{bio})
+  returning id, username, password, email, bio
+</select>]]></source>
+
       </subsection>
 
       <subsection name="sql">

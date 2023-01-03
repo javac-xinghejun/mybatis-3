@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2021 the original author or authors.
+ *    Copyright 2009-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -109,11 +109,12 @@ public class XMLStatementBuilder extends BaseBuilder {
     String keyProperty = context.getStringAttribute("keyProperty");
     String keyColumn = context.getStringAttribute("keyColumn");
     String resultSets = context.getStringAttribute("resultSets");
+    boolean dirtySelect = context.getBooleanAttribute("affectData", Boolean.FALSE);
 
     builderAssistant.addMappedStatement(id, sqlSource, statementType, sqlCommandType,
         fetchSize, timeout, parameterMap, parameterTypeClass, resultMap, resultTypeClass,
         resultSetTypeEnum, flushCache, useCache, resultOrdered,
-        keyGenerator, keyProperty, keyColumn, databaseId, langDriver, resultSets);
+        keyGenerator, keyProperty, keyColumn, databaseId, langDriver, resultSets, dirtySelect);
   }
 
   private void processSelectKeyNodes(String id, Class<?> parameterTypeClass, LanguageDriver langDriver) {
@@ -160,7 +161,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     builderAssistant.addMappedStatement(id, sqlSource, statementType, sqlCommandType,
         fetchSize, timeout, parameterMap, parameterTypeClass, resultMap, resultTypeClass,
         resultSetTypeEnum, flushCache, useCache, resultOrdered,
-        keyGenerator, keyProperty, keyColumn, databaseId, langDriver, null);
+        keyGenerator, keyProperty, keyColumn, databaseId, langDriver, null, false);
 
     id = builderAssistant.applyCurrentNamespace(id, false);
 

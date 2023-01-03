@@ -1,11 +1,11 @@
 /*
- *    Copyright 2009-2021 the original author or authors.
+ *    Copyright 2009-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -63,7 +63,7 @@ public class JavassistProxyFactory implements org.apache.ibatis.executor.loader.
     return EnhancedDeserializationProxyImpl.createProxy(target, unloadedProperties, objectFactory, constructorArgTypes, constructorArgs);
   }
 
-  static Object crateProxy(Class<?> type, MethodHandler callback, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
+  static Object createStaticProxy(Class<?> type, MethodHandler callback, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
 
     ProxyFactory enhancer = new ProxyFactory();
     enhancer.setSuperclass(type);
@@ -115,7 +115,7 @@ public class JavassistProxyFactory implements org.apache.ibatis.executor.loader.
     public static Object createProxy(Object target, ResultLoaderMap lazyLoader, Configuration configuration, ObjectFactory objectFactory, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
       final Class<?> type = target.getClass();
       EnhancedResultObjectProxyImpl callback = new EnhancedResultObjectProxyImpl(type, lazyLoader, configuration, objectFactory, constructorArgTypes, constructorArgs);
-      Object enhanced = crateProxy(type, callback, constructorArgTypes, constructorArgs);
+      Object enhanced = createStaticProxy(type, callback, constructorArgTypes, constructorArgs);
       PropertyCopier.copyBeanProperties(type, target, enhanced);
       return enhanced;
     }
@@ -172,7 +172,7 @@ public class JavassistProxyFactory implements org.apache.ibatis.executor.loader.
             List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
       final Class<?> type = target.getClass();
       EnhancedDeserializationProxyImpl callback = new EnhancedDeserializationProxyImpl(type, unloadedProperties, objectFactory, constructorArgTypes, constructorArgs);
-      Object enhanced = crateProxy(type, callback, constructorArgTypes, constructorArgs);
+      Object enhanced = createStaticProxy(type, callback, constructorArgTypes, constructorArgs);
       PropertyCopier.copyBeanProperties(type, target, enhanced);
       return enhanced;
     }
